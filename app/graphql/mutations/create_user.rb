@@ -6,17 +6,23 @@ class Mutations::CreateUser < Mutations::BaseMutation
   field :errors, [String], null: false
 
   def resolve(name:, email:)
-    user = User.new(name: name.presence || '', email: email)
-    if user.save
-      {
-        user: user,
-        errors: [],
-      }
-    else
-      {
-        user: nil,
-        errors: user.errors.full_messages
-      }
+    begin
+      user = User.new(name: name.presence || '', email: email)
+      user.save!
+      user
+    rescue ActiveRecord::RecordInvalid => err
+      GraphQL::ExecutionError.new(user.errors.messages)
     end
+    # user = User.new(name: name.presence || '', email: email)
+    # if user.save
+    #   {
+    #     user: user,
+    #     errors: [],
+    #   }
+    # else
+    #   {
+    #     errors: user.errors.full_messages
+    #   }
+    # end
   end
 end
