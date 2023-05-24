@@ -1,4 +1,4 @@
 class User < ApplicationRecord
   has_many :posts, dependent: :destroy
-  validates :name, :email, presence: :true , uniqueness: true
+  validates :name, :email, :password, presence: :true , uniqueness: true
 end
