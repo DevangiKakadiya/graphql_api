@@ -1,28 +1,20 @@
 class Mutations::CreateUser < Mutations::BaseMutation
   argument :name, String, required: true
-  argument :email, String, required: true
+  argument :credentials, Types::AuthProviderCredentialsInput, required: true
 
-  field :user, Types::UserType, null: false
-  field :errors, [String], null: false
+  type Types::UserType
 
-  def resolve(name:, email:)
+  def resolve(name: nil, credentials: nil)
     begin
-      user = User.new(name: name.presence || '', email: email)
+      user = User.new(
+              name: name,
+              email: credentials&.[](:email),
+              password: credentials&.[](:password)
+            )
       user.save!
       user
     rescue ActiveRecord::RecordInvalid => err
       GraphQL::ExecutionError.new(user.errors.messages)
     end
-    # user = User.new(name: name.presence || '', email: email)
-    # if user.save
-    #   {
-    #     user: user,
-    #     errors: [],
-    #   }
-    # else
-    #   {
-    #     errors: user.errors.full_messages
-    #   }
-    # end
   end
 end

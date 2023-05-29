@@ -6,6 +6,7 @@ module Types
     field :users, [Types::UserType], null: false
 
     def users
+      p ":::::::::::::::::::::::::::#{context[:current_user].inspect}"
       User.left_joins(:posts).select("users.*, CONCAT(users.id, ' - ', users.name) AS text, string_agg(posts.description, ', ') description").group('users.id')
     end
 
